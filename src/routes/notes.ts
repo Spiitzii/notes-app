@@ -154,7 +154,7 @@ notesRouter.patch('/:id', (req: Request, res: Response) => {
   const oldNote = getNoteById(id)
 
   if (!oldNote) {
-    return res.status(404).send(`Note with ID ${id} was not found.`)
+    return res.status(404).send(`Die Notiz mit der ID ${id} wurde nicht gefunden.`)
   }
 
   // Apply updates to the existing note
@@ -180,7 +180,7 @@ notesRouter.patch('/:id', (req: Request, res: Response) => {
   fs.writeFileSync('data/notes.json', JSON.stringify({ notes: updatedNotes }))
 
   // Send success response
-  res.status(200).send(`Note with ID ${id} has been updated.`)
+  res.status(200).send(`Notiz mit der ${id} wurde aktualisiert.`)
 })
 
 
