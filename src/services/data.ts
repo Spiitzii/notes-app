@@ -11,3 +11,9 @@ export function getNotes(): Note[] {
   const array = notizen.notes
   return array
 }
+
+export function getNoteById(id: number): Note | undefined {
+  const notes = getNotes() // Liste von Notizen
+  const note = notes.find(note => note.id === id)
+  return note
+}

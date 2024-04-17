@@ -3,7 +3,7 @@ import * as fs from 'node:fs'
 // const fs = require('fs')
 import { getNotes } from '../services/data'
 import { Note } from '../types/notes'
-
+import { getNoteById } from '../services/data'
 
 export const notesRouter = Router()
 
@@ -96,8 +96,94 @@ notesRouter.get('/:id', (req: Request, res: Response) => {
 
 })
 
-// Update - PUT/PATCH -> TODO: Beispiel
-notesRouter.put('/:id', (req: Request, res: Response) => { })
+// Update - PUT -> TODO: Beispiel
+notesRouter.put('/:id', (req: Request, res: Response) => {
+  // 1. Daten aus der Anfrage auslesen
+  // Wir erwarten, dass wir Informationen zum title, content, user
+
+  // const { title, content, user } = req.body
+
+  const title = req.body.title
+  const content = req.body.content
+  const user = req.body.user
+  const id = parseInt(req.params.id)
+
+  const oldNote = getNoteById(id)
+
+  if (oldNote === undefined) {
+    res.status(404).send(`Die Notiz mit der ID ${id} wurde nicht gefunden.`)
+  }
+
+  // 2.1 alte Daten abfragen
+  const oldNotes = getNotes()
+  const filteredNotes = oldNotes.filter(note => note.id !== id)
+  
+  // 2.2 neue Notiz erstellen
+  const newNote: Note = {
+    title: title,
+    content: content,
+    user: user,
+    id: id
+  }
+
+  filteredNotes.push(newNote)
+
+  // 2.3 neue Notiz in Datei hinzufügen
+
+  const newNotes = { notes: filteredNotes }
+  fs.writeFileSync('data/notes.json', JSON.stringify(newNotes))
+
+  // 3. Rückmeldung geben, ob alles funktioniert hat
+
+  res.status(204).send(`Die Notiz mit der ${id} wurde atualisiert.`)
+
+ })
+
+// Update - PATCH -> TODO: Beispiel
+
+// Im vorhandenen Code kann man einige Bereiche erneut nutzen, 
+// die Funktionen getNotes() und getNoteById(). 
+// Man muss aber die aktualisierung noch inplementieren.
+// 
+
+notesRouter.patch('/:id', (req: Request, res: Response) => {
+  const id = parseInt(req.params.id)
+  const { title, content, user } = req.body
+
+  // Find the existing note
+  const oldNote = getNoteById(id)
+
+  if (!oldNote) {
+    return res.status(404).send(`Note with ID ${id} was not found.`)
+  }
+
+  // Apply updates to the existing note
+  if (title !== undefined) {
+    oldNote.title = title
+  }
+  if (content !== undefined) {
+    oldNote.content = content
+  }
+  if (user !== undefined) {
+    oldNote.user = user
+  }
+
+  // Write the updated note back to the file
+  const oldNotes = getNotes()
+  const updatedNotes = oldNotes.map(note => {
+    if (note.id === id) {
+      return oldNote
+    }
+    return note
+  })
+
+  fs.writeFileSync('data/notes.json', JSON.stringify({ notes: updatedNotes }))
+
+  // Send success response
+  res.status(200).send(`Note with ID ${id} has been updated.`)
+})
+
+
 
 // Delete - DELETE
 notesRouter.delete('/:id', (req: Request, res: Response) => { })
